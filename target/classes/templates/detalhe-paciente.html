@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detalhes do Paciente - Clínica</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/aside.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      .badge-diabetes {
+      background-color: #3788d8 !important; /* azul */
+      color: white !important;
+      }
+      .badge-hipertensao {
+        background-color: #dc3545 !important; /* laranja */
+        olor: white !important;
+      }
+      .info-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        margin-bottom: 20px;
+      }
+      
+      .info-label {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+      }
+      
+      .info-value {
+        font-size: 1rem;
+        color: #212529;
+        margin-bottom: 15px;
+      }
+      
+      .badge-custom {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+      }
+      
+      .consulta-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s, box-shadow 0.2s;
+        cursor: pointer;
+      }
+      
+      .consulta-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+      }
+      
+      .status-badge {
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+      
+      .status-sem_aula { background-color: #3788d8; color: white; }
+      .status-presenca { background-color: #28a745; color: white; }
+      .status-falta { background-color: #dc3545; color: white; }
+      .status-falta_justificada { background-color: #ffc107; color: #212529; }
+      .status-alta_temporaria { background-color: #6c757d; color: white; }
+      
+      .breadcrumb-custom {
+        background: transparent;
+        padding: 0;
+        margin-bottom: 20px;
+      }
+      
+      .breadcrumb-custom a {
+        color: #3788d8;
+        text-decoration: none;
+      }
+      
+      .breadcrumb-custom a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="d-flex">
+      <aside class="sidebar d-flex flex-column align-items-center p-3">
+        <div class="logo-container">
+          <img src="/images/logo-fisiologia.jpg" alt="Logo" class="logo-img" onerror="this.style.display='none'; this.parentElement.innerHTML='<h5 style=color:#fff>FISIO</h5>'" />
+        </div>
+
+        <ul class="nav flex-column w-100">
+          <li class="nav-item mb-2">
+            <a href="/index" class="nav-link text-white d-flex align-items-center px-3">
+              <i class="bi bi-house me-2"></i> Início
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a href="/pacientes" class="nav-link text-white d-flex align-items-center px-3 active">
+              <i class="bi bi-person me-2"></i> Pacientes
+            </a>
+          </li>
+          <li class="nav-item mb-2">
+            <a href="/calendario" class="nav-link text-white d-flex align-items-center px-3">
+              <i class="bi bi-calendar me-2"></i> Agendamento
+            </a>
+          </li>
+        </ul>
+      </aside>
+
+      <main class="flex-grow-1 p-4" style="background-color: #f8f9fa;">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb breadcrumb-custom">
+            <li class="breadcrumb-item"><a href="/pacientes">Pacientes</a></li>
+            <li class="breadcrumb-item active" aria-current="page" id="breadcrumbNome">Carregando...</li>
+          </ol>
+        </nav>
+
+        <!-- Cabeçalho -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h2 class="fw-semibold mb-1" id="nomePaciente">Carregando...</h2>
+            <p class="text-muted mb-0" id="idadePaciente"></p>
+          </div>
+          <button class="btn btn-outline-primary" onclick="editarPaciente()">
+            <i class="bi bi-pencil me-2"></i> Editar Paciente
+          </button>
+        </div>
+
+        <!-- Cards de Informações -->
+        <div class="row">
+          <!-- Informações Pessoais -->
+          <div class="col-md-6">
+            <div class="info-card">
+              <h5 class="mb-3"><i class="bi bi-person-badge me-2 text-primary"></i>Informações Pessoais</h5>
+              <div class="row">
+                <div class="col-6">
+                  <div class="info-label">Gênero</div>
+                  <div class="info-value" id="genero">-</div>
+                </div>
+                <div class="col-6">
+                  <div class="info-label">Data de Nascimento</div>
+                  <div class="info-value" id="dataNascimento">-</div>
+                </div>
+                <div class="col-6">
+                  <div class="info-label">Telefone</div>
+                  <div class="info-value" id="telefone">-</div>
+                </div>
+                <div class="col-6">
+                  <div class="info-label">Telefone Secundário</div>
+                  <div class="info-value" id="telefoneSecundario">-</div>
+                </div>
+                <div class="col-12">
+                  <div class="info-label">Endereço</div>
+                  <div class="info-value" id="endereco">-</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Informações Médicas -->
+          <div class="col-md-6">
+            <div class="info-card">
+              <h5 class="mb-3"><i class="bi bi-heart-pulse me-2 text-danger"></i>Informações Médicas</h5>
+              <div class="mb-3">
+                <div class="info-label">Condições</div>
+                <div id="condicoes">
+                  <span class="badge-custom badge-diabetes me-2" id="badgeDiabetes" style="display: none;">
+                    <i class="bi bi-star-fill"></i> Diabetes
+                  </span>
+                  <span class="badge-custom badge-hipertensao" id="badgeHipertenso" style="display: none;">
+                    <i class="bi bi-star-fill"></i> Hipertenso
+                  </span>
+                  <span id="semCondicoes" class="text-muted">Nenhuma condição registrada</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <div class="info-label">Sobre o Paciente</div>
+                <div class="info-value" id="sobrePaciente">-</div>
+              </div>
+              <div>
+                <div class="info-label">Observações Gerais</div>
+                <div class="info-value" id="observacoesGerais">-</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Histórico de Consultas -->
+        <div class="info-card mt-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="bi bi-calendar-check me-2 text-success"></i>Histórico de Consultas</h5>
+            <span class="badge bg-primary" id="totalConsultas">0 consultas</span>
+          </div>
+          
+          <div id="listaConsultas">
+            <div class="text-center text-muted py-4">
+              <i class="bi bi-calendar-x fs-1"></i>
+              <p class="mt-2">Nenhuma consulta registrada</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+    <!-- Modal EDITAR Paciente -->
+    <div class="modal fade" id="modalEditarPaciente" tabindex="-1">
+      <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content p-3">
+          <div class="modal-header border-0 pb-0">
+            <h5 class="modal-title fw-semibold">Editar paciente</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <form id="formEditarPaciente">
+              <input type="hidden" id="editarIdPaciente" />
+
+              <div class="row g-3">
+                <!-- Nome Completo -->
+                <div class="col-md-6">
+                  <label class="form-label">Nome completo</label>
+                  <input type="text" class="form-control" id="editarNome" required />
+                </div>
+
+                <!-- Data de Nascimento -->
+                <div class="col-md-3">
+                  <label class="form-label">Data de nascimento</label>
+                  <input type="date" class="form-control" id="editarDataNascimento" />
+                </div>
+
+                <!-- Genero -->
+                <div class="col-md-3">
+                  <label class="form-label">Gênero</label>
+                  <select class="form-select" id="editarGenero">
+                    <option value="" disabled>Selecione</option>
+                    <option>Masculino</option>
+                    <option>Feminino</option>
+                    <option>Outro</option>
+                  </select>
+                </div>
+
+                <!-- Telefone -->
+                <div class="col-md-3">
+                  <label class="form-label">Telefone</label>
+                  <input type="text" class="form-control" id="editarTelefone" />
+                </div>
+
+                <!-- Telefone Secundário -->
+                <div class="col-md-3">
+                  <label class="form-label">Telefone (secundário)</label>
+                  <input type="text" class="form-control" id="editarTelefone2" />
+                </div>
+
+                <!-- Endereço -->
+                <div class="col-md-6">
+                  <label class="form-label">Endereço</label>
+                  <input type="text" class="form-control" id="editarEndereco" />
+                </div>
+
+                <!-- Sobre o Paciente -->
+                <div class="col-md-12">
+                  <label class="form-label">Sobre o paciente</label>
+                  <input type="text" class="form-control" id="editarSobre" />
+                </div>
+
+                <!-- Observações Gerais -->
+                <div class="col-md-7">
+                  <label class="form-label">Observações gerais</label>
+                  <input type="text" class="form-control" id="editarObservacoes" />
+                </div>
+
+                <!-- Checkboxes -->
+                <div class="col-md-5 d-flex align-items-center gap-3 mt-4 flex-wrap">
+                  <!-- Diabetes -->
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="editarDiabetes" />
+                    <label class="form-check-label" for="editarDiabetes">Possui diabetes?</label>
+                  </div>
+
+                  <!-- Hipertenso -->
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="editarHipertenso" />
+                    <label class="form-check-label" for="editarHipertenso">Hipertenso?</label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="modal-footer border-0 pt-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary">Salvar alterações</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+      const pacienteId = /*[[${pacienteId}]]*/ 0;
+
+      async function carregarDadosPaciente() {
+        try {
+          const response = await fetch(`/api/pacientes/${pacienteId}`);
+          if (!response.ok) throw new Error('Paciente não encontrado');
+          
+          const paciente = await response.json();
+          
+          // Atualizar informações básicas
+          document.getElementById('nomePaciente').textContent = paciente.nomeCompleto;
+          document.getElementById('breadcrumbNome').textContent = paciente.nomeCompleto;
+          
+          // Calcular idade
+          if (paciente.dataNascimento) {
+            const nascimento = new Date(paciente.dataNascimento);
+            const hoje = new Date();
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mes = hoje.getMonth() - nascimento.getMonth();
+            if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+              idade--;
+            }
+            document.getElementById('idadePaciente').textContent = `${idade} anos`;
+            document.getElementById('dataNascimento').textContent = nascimento.toLocaleDateString('pt-BR');
+          }
+          
+          // Informações pessoais
+          document.getElementById('genero').textContent = paciente.genero || '-';
+          document.getElementById('telefone').textContent = paciente.telefone || '-';
+          document.getElementById('telefoneSecundario').textContent = paciente.telefoneSecundario || '-';
+          document.getElementById('endereco').textContent = paciente.endereco || '-';
+          
+          // Informações médicas
+          document.getElementById('sobrePaciente').textContent = paciente.sobrePaciente || '-';
+          document.getElementById('observacoesGerais').textContent = paciente.observacoesGerais || '-';
+          
+          // Condições médicas
+          let temCondicoes = false;
+          if (paciente.possuiDiabetes) {
+            document.getElementById('badgeDiabetes').style.display = 'inline-block';
+            temCondicoes = true;
+          }
+          if (paciente.hipertenso) {
+            document.getElementById('badgeHipertenso').style.display = 'inline-block';
+            temCondicoes = true;
+          }
+          if (temCondicoes) {
+            document.getElementById('semCondicoes').style.display = 'none';
+          }
+          
+        } catch (error) {
+          console.error('Erro ao carregar dados do paciente:', error);
+          alert('Erro ao carregar dados do paciente');
+        }
+      }
+
+      async function carregarConsultas() {
+        try {
+          const response = await fetch(`/api/consultas/paciente/${pacienteId}`);
+          if (!response.ok) throw new Error('Erro ao buscar consultas');
+          
+          const consultas = await response.json();
+          
+          document.getElementById('totalConsultas').textContent = `${consultas.length} consulta${consultas.length !== 1 ? 's' : ''}`;
+          
+          if (consultas.length === 0) return;
+          
+          const listaConsultas = document.getElementById('listaConsultas');
+          listaConsultas.innerHTML = '';
+          
+          consultas.forEach(consulta => {
+            const dataInicio = new Date(consulta.dataInicio);
+            const dataFim = new Date(consulta.dataFim);
+            
+            const statusClass = `status-${consulta.status}`;
+            const statusText = {
+              'sem_aula': 'Sem Aula',
+              'presenca': 'Presença',
+              'falta': 'Falta',
+              'falta_justificada': 'Falta Justificada',
+              'alta_temporaria': 'Alta Temporária'
+            }[consulta.status] || consulta.status;
+            
+            const card = document.createElement('div');
+            card.className = 'consulta-card';
+            card.onclick = () => window.location.href = `/consultas/${consulta.id}`;
+            
+            card.innerHTML = `
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="bi bi-calendar-event me-2 text-primary"></i>
+                    <strong>${dataInicio.toLocaleDateString('pt-BR')} às ${dataInicio.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</strong>
+                    <span class="ms-2 text-muted">até ${dataFim.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</span>
+                  </div>
+                  <div class="text-muted small mb-2">
+                    <i class="bi bi-tag me-1"></i>${consulta.tipoConsulta || 'Consulta'}
+                  </div>
+                  ${consulta.observacoes ? `<div class="text-muted small"><i class="bi bi-chat-left-text me-1"></i>${consulta.observacoes}</div>` : ''}
+                </div>
+                <div>
+                  <span class="status-badge ${statusClass}">${statusText}</span>
+                </div>
+              </div>
+            `;
+            
+            listaConsultas.appendChild(card);
+          });
+          
+        } catch (error) {
+          console.error('Erro ao carregar consultas:', error);
+        }
+      }
+
+      function editarPaciente() {
+        const modal = new bootstrap.Modal(document.getElementById('modalEditarPaciente'));
+
+        document.getElementById('editarIdPaciente').value = pacienteId;
+        document.getElementById('editarNome').value = document.getElementById('nomePaciente').textContent.trim();
+        document.getElementById('editarGenero').value = document.getElementById('genero').textContent.trim();
+        document.getElementById('editarTelefone').value = document.getElementById('telefone').textContent.trim();
+        document.getElementById('editarTelefone2').value = document.getElementById('telefoneSecundario').textContent.trim();
+        document.getElementById('editarEndereco').value = document.getElementById('endereco').textContent.trim();
+        document.getElementById('editarSobre').value = document.getElementById('sobrePaciente').textContent.trim();
+        document.getElementById('editarObservacoes').value = document.getElementById('observacoesGerais').textContent.trim();
+
+        const dataTexto = document.getElementById('dataNascimento').textContent.trim();
+        if (dataTexto && dataTexto !== "-") {
+          const partes = dataTexto.split("/");
+          const formatoISO = `${partes[2]}-${partes[1]}-${partes[0]}`;
+          document.getElementById('editarDataNascimento').value = formatoISO;
+        }
+
+        document.getElementById('editarDiabetes').checked =
+        document.getElementById('badgeDiabetes').style.display !== 'none';
+
+        document.getElementById('editarHipertenso').checked =
+        document.getElementById('badgeHipertenso').style.display !== 'none';
+
+        modal.show();
+      }
+
+      document.getElementById('formEditarPaciente').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById('editarIdPaciente').value;
+
+    const payload = {
+        nomeCompleto: document.getElementById('editarNome').value,
+        dataNascimento: document.getElementById('editarDataNascimento').value || null,
+        genero: document.getElementById('editarGenero').value,
+        telefone: document.getElementById('editarTelefone').value,
+        telefoneSecundario: document.getElementById('editarTelefone2').value,
+        endereco: document.getElementById('editarEndereco').value,
+        sobrePaciente: document.getElementById('editarSobre').value,
+        observacoesGerais: document.getElementById('editarObservacoes').value,
+        possuiDiabetes: document.getElementById('editarDiabetes').checked,
+        hipertenso: document.getElementById('editarHipertenso').checked
+    };
+
+    try {
+        const response = await fetch(`/api/pacientes/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error("Erro ao salvar alterações");
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarPaciente'));
+        modal.hide();
+
+        await carregarDadosPaciente();
+
+        alert("Paciente atualizado com sucesso!");
+
+    } catch (err) {
+        console.error(err);
+        alert("Erro ao atualizar dados!");
+    }
+});
+
+
+      document.addEventListener('DOMContentLoaded', () => {
+        carregarDadosPaciente();
+        carregarConsultas();
+      });
+    </script>
+  </body>
+</html>
