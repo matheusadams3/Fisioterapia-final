@@ -91,8 +91,8 @@ document.addEventListener("DOMContentLoaded", () => {
         tr.dataset.id = p.id;
 
         const idade = calcularIdade(p.dataNascimento);
-        const diabetesIcon = p.possuiDiabetes  `<i class="bi bi-star-fill text-primary me-1"></i>` : '';
-        const hipertensoIcon = p.hipertenso  `<i class="bi bi-star-fill text-danger me-1"></i>` : '';
+        const diabetesIcon = p.possuiDiabetes ? `<i class="bi bi-star-fill text-primary me-1"></i>` : '';
+        const hipertensoIcon = p.hipertenso ? `<i class="bi bi-star-fill text-danger me-1"></i>` : '';
 
         tr.innerHTML = `
             <td>${hipertensoIcon}${diabetesIcon} ${p.nomeCompleto}</td>
